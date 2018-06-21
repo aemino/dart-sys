@@ -8,7 +8,7 @@ const WIN_DEF_DART_SDK_PATH: &str = "C:\\Program Files\\Dart\\dart-sdk";
 fn main() {
 	let mut bindings_builder = bindgen::Builder::default().header("wrapper.h");
 
-	let dartsdk_path: Option<PathBuf> = if let Some(path) = option_env!("BINDGEN_DART_SDK_PATH") {
+	let dartsdk_path: Option<PathBuf> = if let Some(path) = env::var("BINDGEN_DART_SDK_PATH") {
 		Some(PathBuf::from(path))
 	} else if cfg!(windows) {
 		Some(PathBuf::from(WIN_DEF_DART_SDK_PATH))
@@ -24,7 +24,9 @@ fn main() {
 		println!("cargo:rustc-link-search={}", path_bin.display());
 	}
 
-	println!("cargo:rustc-link-lib=static=dart");
+	if (cfg!(windows)) {
+		println!("cargo:rustc-link-lib=static=dart");
+	}
 
 	let bindings = bindings_builder
 		.generate()
